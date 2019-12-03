@@ -13,19 +13,28 @@ variables:
 
 stages:
 - stage: Build
-  displayName: Build and push stage
+  displayName: Build and Push Stage
   jobs:  
   - job: Build
     displayName: Build job
     pool:
-      vmImage: $(vmImageName)
-    steps:
-    - task: Docker@2
-      displayName: Build and push an image to container registry
+      vmImage: 'ubuntu-latest'
+    steps:    
+    - task: DockerCompose@0
       inputs:
-        command: buildAndPush
-        repository: $(imageRepository)
-        dockerfile: $(dockerFilePath)
-        containerRegistry: $(dockerRegistryServiceConnection)
-        tags: |
-          $(tag)
+        containerregistrytype: 'Azure Container Registry'
+        azureSubscription: 'Azure subscription 1(3df088ff-764b-4f71-95c2-bad9920dcb72)'
+        azureContainerRegistry: '{"loginServer":"mmaltes1containerregistry.azurecr.io", "id" : "/subscriptions/3df088ff-764b-4f71-95c2-bad9920dcb72/resourceGroups/myapp-rg/providers/Microsoft.ContainerRegistry/registries/mmaltes1ContainerRegistry"}'
+        dockerComposeFile: '**/docker-compose.yml'
+        action: 'Build services'
+        includeSourceTags: true
+        includeLatestTag: true
+    - task: DockerCompose@0
+      inputs:
+        containerregistrytype: 'Azure Container Registry'
+        azureSubscription: 'Azure subscription 1(3df088ff-764b-4f71-95c2-bad9920dcb72)'
+        azureContainerRegistry: '{"loginServer":"mmaltes1containerregistry.azurecr.io", "id" : "/subscriptions/3df088ff-764b-4f71-95c2-bad9920dcb72/resourceGroups/myapp-rg/providers/Microsoft.ContainerRegistry/registries/mmaltes1ContainerRegistry"}'
+        dockerComposeFile: '**/docker-compose.yml'
+        action: 'Push services'
+        includeSourceTags: true
+        includeLatestTag: true
